@@ -16,4 +16,4 @@
 lnc-config.json
 
 ## Ignore builds
-lnc
+./lnc
