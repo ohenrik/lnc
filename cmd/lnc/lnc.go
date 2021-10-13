@@ -11,6 +11,8 @@ import (
 )
 
 func main() {
+	app := cli.NewApp()
+	app.Name = "lnc"
 
 	flags := []cli.Flag{
 		&cli.StringFlag{
@@ -18,42 +20,43 @@ func main() {
 			Aliases: []string{"c"},
 			Usage:   "Path to config file.",
 		},
-		&cli.StringFlag{
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:  "host",
 			Value: "localhost:10009",
 			Usage: "Where to reach the node. Default: localhost:10009",
-		},
-		&cli.StringFlag{
+		}),
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:    "tls",
 			Aliases: []string{"t"},
 			Usage:   "Path to your tls.cert file.",
-		},
-		&cli.StringFlag{
+		}),
+		altsrc.NewStringFlag(&cli.StringFlag{
 			Name:    "macaroon",
 			Aliases: []string{"m"},
 			Usage:   "Path to your admin.macaroon file.",
-		},
+		}),
 	}
 
-	app := &cli.App{
-		Commands: []*cli.Command{{
-			Name:  "fees",
-			Usage: "Prints a table of channels, fees rates, and capacity.",
-			Action: func(c *cli.Context) error {
-				client, err := node.ConnectToLND(c.String("host"), c.String("tls"), c.String("macaroon"))
-				if err != nil {
-					fmt.Print("failed to connect to node: ", err)
-				}
-
-				node.ListFees(client)
-				return nil
-			},
-			Flags: flags,
-		},
+	feeCommand := &cli.Command{
+		Name:  "fees",
+		Usage: "Print a table of fees rate, Channels, Pub keys, and capacity.",
+		Action: func(c *cli.Context) error {
+			client, err := node.ConnectToLND(c.String("host"),
+				c.String("tls"), c.String("macaroon"))
+			if err != nil {
+				fmt.Print("failed to connect to node: ", err)
+			}
+			node.ListFees(client)
+			return nil
 		},
 	}
+	app.Flags = flags
+	app.Before = altsrc.InitInputSourceWithContext(flags,
+		altsrc.NewTomlSourceFromFlagFunc("config"))
 
-	app.Before = altsrc.InitInputSourceWithContext(flags, altsrc.NewJSONSourceFromFlagFunc("config"))
+	app.Commands = cli.Commands{
+		feeCommand,
+	}
 
 	err := app.Run(os.Args)
 	if err != nil {
