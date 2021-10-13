@@ -1,0 +1,5 @@
+{
+    "host": "localhost:10009",
+    "tls": "/path/to/tls.cert",
+    "macaroon": "/path/to/admin.macaroon"
+}
