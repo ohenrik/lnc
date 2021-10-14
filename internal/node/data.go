@@ -10,7 +10,7 @@ import (
 type ChannelMap map[string]*lnrpc.Channel
 type FeeMap map[string]*lnrpc.ChannelFeeReport
 
-type ChannelReport struct {
+type ChannelFeeMap struct {
 	ChannelMap
 	FeeMap
 }
@@ -31,22 +31,22 @@ func createFeeMap(f []*lnrpc.ChannelFeeReport) FeeMap {
 	return r
 }
 
-func FetchChannelData(client lnrpc.LightningClient) (ChannelReport, error) {
+func FetchChannelData(client lnrpc.LightningClient) (ChannelFeeMap, error) {
 
 	ctx := context.Background()
 
 	channelsResponse, err := client.ListChannels(ctx, &lnrpc.ListChannelsRequest{})
 	if err != nil {
-		return ChannelReport{}, fmt.Errorf("cannot list channels report from node: %v", err)
+		return ChannelFeeMap{}, fmt.Errorf("cannot list channels report from node: %v", err)
 	}
 
 	feeReportResponse, err := client.FeeReport(ctx, &lnrpc.FeeReportRequest{})
 	if err != nil {
-		return ChannelReport{}, fmt.Errorf("cannot fee report from node: %v", err)
+		return ChannelFeeMap{}, fmt.Errorf("cannot fee report from node: %v", err)
 	}
 
 	cm := createChannelMap(channelsResponse.Channels)
 	fm := createFeeMap(feeReportResponse.ChannelFees)
 
-	return ChannelReport{cm, fm}, nil
+	return ChannelFeeMap{cm, fm}, nil
 }
