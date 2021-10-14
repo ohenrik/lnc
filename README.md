@@ -21,7 +21,7 @@ suggest new features.
 * Combine transaction, channel, fee and htlc data
 * Create profit and loss overview.
 * Channel categorization and grouping
-* Fee logic/ruless
+* Fee logic/rules
 * Rebalancing logic/rules
 * A rest API
 * Command line interface
