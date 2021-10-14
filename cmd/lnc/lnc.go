@@ -39,12 +39,12 @@ func main() {
 
 	feeCommand := &cli.Command{
 		Name:  "fees",
-		Usage: "Print a table of fees rate, Channels, Pub keys, and capacity.",
+		Usage: "Print a table of fee rate, Channels, Pub keys, and capacity.",
 		Action: func(c *cli.Context) error {
 			client, err := node.ConnectToLND(c.String("host"),
 				c.String("tls"), c.String("macaroon"))
 			if err != nil {
-				fmt.Print("failed to connect to node: ", err)
+				return fmt.Errorf("failed to connect to node: %v", err)
 			}
 			node.ListFees(client)
 			return nil
